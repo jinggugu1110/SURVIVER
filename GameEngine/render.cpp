@@ -111,15 +111,30 @@ void Renderer(ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain
 	//primitiveBatch->Begin();
 	//primitiveBatch->DrawTriangle(VertexPositionColor(Vector3(0.f, 0.5f, 0.5f), Colors::Yellow), VertexPositionColor(Vector3(0.5f, -0.5f, 0.5f), Colors::Yellow), VertexPositionColor(Vector3(-0.5f, -0.5f, 0.5f), Colors::Yellow));
 	//primitiveBatch->End();
+	if (GameState == GAME_TITLE && g_HasBoss)
+	{
+		Vector3 eye = g_BossPos + Vector3(0, -9, -5);
+		Vector3 target = g_BossPos;
+		m_view = Matrix::CreateLookAt(eye, target, Vector3::Up);
+	}
 
+	//if (!CurrentLevel.size()) return;
+	if (GameState == GAME_PLAY || GameState == GAME_TITLE)
+	{
+		if (CurrentLevel.size())
+		{
+			RenderLevel(context);
+			RenderEntityList(device, context);
+			particle_system::RenderParticles(device, context);
+		}
+	}
 
-	if (!CurrentLevel.size()) return;
-	//if (g_skyDome)
-	//{
-	//	g_skyDome->Update(DeltaTime);
-	//	g_skyDome->Render(context, m_world, m_view, m_proj);
-	//}
-	RenderLevel(context);
+	if (GameState == GAME_PLAY)
+	{
+		viewmodel::RenderViewmodel(device);
+	}
+
+	//RenderLevel(context);
 	//if (!LevelObjects.size()) LoadLevel(device, context, "e1m1");
 	//else RenderLevel(context);
 
@@ -145,7 +160,13 @@ void Renderer(ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain
 	{
 		DrawAabb(context, LevelBBoxes[i], Colors::AliceBlue);
 	}
-
+	for (auto& ent : EntityList)
+	{
+		if (ent.name == "Boss")
+		{
+			DrawAabb(context, ent.bbox, Colors::Red);
+		}
+	}
 	DrawRay(context, g_PrimaryRay.origin, g_PrimaryRay.direction, false, Colors::Pink);
 #endif
 

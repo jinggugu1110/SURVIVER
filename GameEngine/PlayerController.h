@@ -36,4 +36,5 @@ namespace player
 	inline Vector3 GroundVel;
 	inline std::string Viewmodel;
 
+	void Reset(const Vector3& spawnPos);
 }

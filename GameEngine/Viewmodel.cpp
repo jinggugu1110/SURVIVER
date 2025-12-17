@@ -109,6 +109,8 @@ namespace viewmodel
 
     void RenderViewmodel(ID3D11Device* device)
     {
+        if (GameState == GAME_TITLE)
+            return;
         if (!ViewmodelTexture)
         {
             CreateViewmodelTexture(device, "v_shot");

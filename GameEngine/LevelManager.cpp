@@ -5,7 +5,11 @@
 #include "render.h"
 #include "EntityList.h"
 #include "PlayerController.h"
+#include "monster_zombie.h" 
+#include "ParticleSystem.h"
 
+int g_AttackerCount = 0;
+float g_LastClearTime = 0.0f;
 
 void extractBoundingBoxes(const std::string& filename) 
 {
@@ -95,6 +99,8 @@ void UnloadLevel()
     }
 }
 
+bool g_HasBoss = false;
+Vector3 g_BossPos = Vector3::Zero;
 void LoadLevel(ID3D11Device* device, ID3D11DeviceContext* context, std::string mapName)
 {
     UnloadLevel();
@@ -130,24 +136,44 @@ void LoadLevel(ID3D11Device* device, ID3D11DeviceContext* context, std::string m
             }
             continue;
         }
-		int totalMonsters = 30; // enemy count
-		float spawnRange = 100.0f; // range to spawn enemies around the center
-
-        for (int m = 0; m < totalMonsters; m++)
+        if (textureNames[i].find("Boss") != std::string::npos)
         {
-            float x = ((rand() % 1000) / 1000.0f) * spawnRange - spawnRange / 2;
-            float z = ((rand() % 1000) / 1000.0f) * spawnRange - spawnRange / 2;
-			float y = ((rand() % 1000) / 1000.0f) * spawnRange - spawnRange / 2; // height can be adjusted as needed
-
-            AddMonster("monster_zombie", Vector3(x, y, z));
+            
+            Vector3 bpos = vertexDataMap.at(textureNames[i])[0].position;
+            AddBoss(textureNames[i], bpos);
+            g_BossPos = bpos;
+            g_HasBoss = true;
+			
+            continue;
         }
+        if (g_HasBoss) {
+            //random zombies spawn for testing
+            //const int monsterCount = 50;
+            //const float radius = 5.0f;
+            //
+            //for (int i = 0; i < monsterCount; i++)
+            //{
+            //    float theta = XM_2PI * (rand() / (float)RAND_MAX); // 0 ~ 2π
+            //    float phi = acosf(1.0f - 2.0f * (rand() / (float)RAND_MAX)); // 0 ~ π
+            //
+            //    Vector3 offset(
+            //        radius * sinf(phi) * cosf(theta),
+            //        radius * cosf(phi),
+            //        radius * sinf(phi) * sinf(theta)
+            //    );
+            //
+            //    Vector3 spawnPos = g_BossPos + offset;
+            //
+            //    AddMonster("monster_zombie", spawnPos);
+            //}
+            
+        }
+            
+      
         if (textureNames[i].find("info_player_start") != std::string::npos) //Start point
         {
-            Vector3 pos = vertexDataMap.at(textureNames[i])[0].position;
-            player::PlayerPosition = pos;
-            player::PlayerVelocity = Vector3::Zero;
-            player::PlayerGrounded = true;
-            player::PlayerHealth = 5;
+          
+            g_PlayerSpawnPos = vertexDataMap.at(textureNames[i])[0].position;
             continue;
         }
 		
@@ -171,6 +197,51 @@ void LoadLevel(ID3D11Device* device, ID3D11DeviceContext* context, std::string m
     }
 }
 
+void SpawnWave()
+{
+    const int ATTACKER_COUNT = 10;
+    const int TOTAL = 120;
+    const float RADIUS = 4.0f;
+
+    const int LAT_COUNT = 6;                 // ?度?数
+    const int PER_LAT = TOTAL / LAT_COUNT;   // ??怪数
+
+    for (int i = 0; i < TOTAL; i++)
+    {
+        float y = 1.0f - 2.0f * (i + 0.5f) / TOTAL; // [-1, 1]
+        y = std::clamp(y, -0.95f, 0.95f);
+        float radiusXZ = sqrtf(1.0f - y * y);
+        const float golden = XM_PI * (3.0f - sqrtf(5.0f)); // ? 2.39996
+        float theta = golden * i;
+
+        Vector3 offset(
+            RADIUS * radiusXZ * cosf(theta),
+            RADIUS * y,
+            RADIUS * radiusXZ * sinf(theta)
+        );
+
+        Vector3 pos = g_BossPos + offset;
+
+        AddMonster("monster_zombie", pos);
+
+        ENTITY& e = EntityList.back();
+
+        // 保存球面参数
+        e.angles.x = y;    // 固定?度
+        e.angles.y = theta;  // ?度（后?只改?个）
+
+        // 初始化
+        e.think = monster_zombie_think;
+        e.next_think = Time;
+        e.velocity = Vector3::Zero;
+
+        e.isAttacker = (i < ATTACKER_COUNT);
+    }
+}
+
+
+
+
 void RenderLevel(ID3D11DeviceContext* context)
 {
     for (int i = 0; i < LevelObjects.size(); i++)
@@ -189,5 +260,25 @@ void RenderLevel(ID3D11DeviceContext* context)
         LevelObjects[i]->Draw(m_effect.get(), m_inputLayout);
 
         //LevelObjects[i]->Draw(Matrix::Identity, m_view, m_proj, Colors::White, LevelTextures[i].Get());
+    }
+}
+void ExplodeAllMonsters()
+{
+    for (int i = 0; i < EntityList.size(); i++)
+    {
+        ENTITY& e = EntityList[i];
+
+        if (e.think == monster_zombie_think)
+        {
+            particle_system::EmitExplosion(
+                e.position,
+                25,     // 粒子数量
+                3.0f,   // 速度
+                0.6f    // 生命周期（短一点，不?）
+            );
+
+            e.think = SUB_Remove;
+            e.next_think = 0;
+        }
     }
 }

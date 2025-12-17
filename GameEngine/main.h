@@ -8,8 +8,8 @@ inline bool LockMouse = false;
 inline bool Fullscreen = false;
 inline int WindowWidth = 1280;
 inline int WindowHeight = 720;
-inline std::wstring WindowTitle = L"Aim Trainer";
-inline std::wstring WindowClass = L"Aim Trainer";
+inline std::wstring WindowTitle = L"Core";
+inline std::wstring WindowClass = L"Core";
 inline HWND hwnd;
 
 //GUI
@@ -32,6 +32,16 @@ inline float FOV = 70.f;
 inline float DeltaTime;
 inline float Time;
 
+//Game State
+enum GAME_STATE
+{
+    GAME_TITLE,
+    GAME_PLAY,
+    GAME_CLEAR,
+    GAME_FAIL
+};
+
+inline GAME_STATE GameState = GAME_TITLE;
 
 //Camera
 inline float m_pitch;
@@ -137,3 +147,6 @@ inline float random_float(float lo, float hi) {
 inline int random_bool(double pct) {
     return rand01() * 100.0 <= pct;
 }
+//effect
+extern float g_CrtTime;        // ˜¸Ž€–S?Žn“I??
+extern bool  g_CrtShutdown;  // ¥”Û?“ü CRT ’f?‰‰o

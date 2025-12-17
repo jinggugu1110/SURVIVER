@@ -43,7 +43,7 @@ namespace player
 	void UpdateColliderPosition()
 	{
 		PlayerCollider.Center = PlayerPosition;
-		PlayerCollider.Extents = PlayerSize / 2.0f;
+		PlayerCollider.Extents = PlayerSize / 2 - Vector3(0.2f, 0.0f, 0.2f);
 	}
 
 	float lastJump;
@@ -267,6 +267,22 @@ namespace player
 		UpdateColliderPosition();
 		if(Vector3::Distance(m_cameraPos, PlayerPosition) > 6.f) m_cameraPos = m_cameraPos.Lerp(m_cameraPos, PlayerPosition + VecView, 16.0f * DeltaTime);
 		m_cameraPos = m_cameraPos.Lerp(m_cameraPos, PlayerPosition + VecView, 16.0f * DeltaTime); //trick  //m_cameraPos = PlayerPosition + VecView;
+	}
+	void Reset(const Vector3& spawnPos)
+	{
+		PlayerPosition = spawnPos + Vector3(0, 0.2f, 0); // slight offset to avoid spawning in the ground
+		PlayerVelocity = Vector3::Zero;
+		GroundVel = Vector3::Zero;
+
+		PlayerGrounded = true;
+		PlayerHealth = 5;
+
+		// ?像机 / ?角
+		m_pitch = 0.0f;
+		m_yaw = 0.0f;
+
+		// ?撞盒同?（非常重要）
+		PlayerCollider.Center = spawnPos;
 	}
 }
 

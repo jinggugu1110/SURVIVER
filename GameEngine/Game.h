@@ -63,12 +63,6 @@ private:
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
 
-
-
-
-
-
-
-
-
 };
+
+void StartNewGame(ID3D11Device* device, ID3D11DeviceContext* context);

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "gui.h"
 #include "main.h"
+#include "Game.h"
 
 
 #include "imgui/imgui.h"
@@ -12,6 +13,7 @@
 #include "gui_style.h"
 #include "gui_hud.h"
 #include "LevelManager.h"
+#include <algorithm>
 
 namespace gui
 {
@@ -47,34 +49,39 @@ namespace gui
         if (CurrentPage == page_main)
         {
             
-            if (ImGui::Button("QUIT", ImVec2(ButtonWidth, ButtonHeight))) ExitProcess(EXIT_SUCCESS);
+            if (ImGui::Button("Quit", ImVec2(ButtonWidth, ButtonHeight))) ExitProcess(EXIT_SUCCESS);
             float posY = ImGui::GetCursorPosY();
             ImGui::SetCursorPosY(posY - ButtonHeight * 2 - ButtonHeight * 0.25);
             ImGui::SetCursorPosX(centerX);
-            if (ImGui::Button("NEWGAME", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_singleplayer;
+            if (ImGui::Button("New Game", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_singleplayer;
             //if (ImGui::Button("MULTIPLAYER", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_multiplayer;
             //if (ImGui::Button("SETTINGS", ImVec2(ButtonWidth, ButtonHeight))) { ShowSettings = !ShowSettings; }
             //if (ImGui::Button("CREDITS", ImVec2(ButtonWidth, ButtonHeight))) ShowCredits = !ShowCredits;
         }
         else if (CurrentPage == page_singleplayer)
         {
-            if (ImGui::Button("BACK", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_main;
+            if (ImGui::Button("Back", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_main;
             float posY = ImGui::GetCursorPosY();
             ImGui::SetCursorPosX(centerX);
             ImGui::SetCursorPosY(posY - ButtonHeight * 2 - ButtonHeight * 0.25);
-            if (ImGui::Button("START", ImVec2(ButtonWidth, ButtonHeight))) 
+            if (ImGui::Button("Start", ImVec2(ButtonWidth, ButtonHeight))) 
             { 
+                UnloadLevel();
                 CurrentPage = page_main; 
+                LoadLevel(device, context, "e1m1");
+                StartNewGame(device, context);
+                GameState = GAME_PLAY;
                 ShowMenu = false; 
                 LockMouse = true; 
-                LoadLevel(device, context, "e1m1"); 
+                m_mouse->SetMode(Mouse::MODE_RELATIVE);
+                
             }
             //if (ImGui::Button("LOAD", ImVec2(ButtonWidth, ButtonHeight))) ShowLoadMenu = !ShowLoadMenu;
             //if (ImGui::Button("SAVE", ImVec2(ButtonWidth, ButtonHeight))) ShowSaveMenu = !ShowSaveMenu;
         }
         //ImGui::Text("lefttop1");
        
-        const char* title = "SURVIVER";
+        const char* title = "C o R E";
 
     
         ImGui::PushFont(font_menu);
@@ -174,29 +181,91 @@ namespace gui
                 m_AccumulatedFrameCount++;
                 ImGui::Text((std::to_string(framerate) + " FPS").c_str());
                 
+               
                 
-
-               
-                //ImGui::Text((std::to_string(player::PlayerPosition.x) + ", " + std::to_string(player::PlayerPosition.y) + ", " + std::to_string(player::PlayerPosition.z)).c_str());
-
-               
-
-                if (ShowMenu)
+                if (GameState == GAME_TITLE)
                 {
-                    io.MouseDrawCursor = true;
-                    auto* drawList = ImGui::GetBackgroundDrawList(); // fullscreen
-                    //drawList->PushClipRectFullScreen();
-                    //ImGui::GetWindowDrawList()->AddRectFilled(
-                        //ImVec2(0, 0),
-                        //io.DisplaySize,
-						//IM_COL32(0, 0, 0, 150) // grey with alpha 150
-                    //);
                     DrawMenu(device, context);
                 }
-                else io.MouseDrawCursor = false;
+                else if (GameState == GAME_PLAY)
+                {
+                    DrawHud();
+                    //ShowMenu = false;
+                }
+                else if (GameState == GAME_CLEAR)
+                {
+                    ImGui::Text("YOU WIN");
+                    if (ImGui::Button("RESTART"))
+                    {
+                        UnloadLevel();
+                     
+                        LoadLevel(device, context, "e1m1");
+                        
+                        //EntityList.clear();
+                        GameState = GAME_TITLE;
+                        ShowMenu = true;
+                        LockMouse = false;
+                        m_mouse->SetMode(Mouse::MODE_ABSOLUTE);
+                        
+                    }
+                }
+                else if (GameState == GAME_FAIL)
+                {
+                    ImGuiIO& io = ImGui::GetIO();
+                    auto* drawList = ImGui::GetBackgroundDrawList();
 
+                    static float blackoutT = 0.0f;
+                    blackoutT += DeltaTime;
 
-                if(!ShowMenu) DrawHud();
+                    // 0 → 1
+                    float t = min(blackoutT / 1.0f, 1.0f);
+
+                    // 中央亮点半径（CRT 断?感）
+                    float radius = (1.0f - t) * std:: max(0.05f, io.DisplaySize.y*0.01f);
+
+                    ImVec2 center(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
+
+                    // 全黑
+                    drawList->AddRectFilled(
+                        ImVec2(0, 0),
+                        io.DisplaySize,
+                        IM_COL32(0, 0, 0, 255)
+                    );
+
+                    // 中央亮圈（最后一点光）
+                    drawList->AddCircleFilled(
+                        center,
+                        radius,
+                        IM_COL32(255, 255, 255, 255),
+                        64
+                    );
+
+                    ImGui::SetCursorPosY(io.DisplaySize.y * 0.6f);
+                    ImGui::SetCursorPosX((io.DisplaySize.x - ButtonWidth) * 0.5f);
+
+                    if (t >= 1.0f)
+                    {
+                        ImGui::Text("GAME OVER");
+                        if (ImGui::Button("RESTART", ImVec2(ButtonWidth, ButtonHeight)))
+                        {
+                            
+                            UnloadLevel(); 
+                           
+                            // ② 重置 CRT 断?状?（★??）
+                            g_CrtShutdown = false;
+                            g_CrtTime = 0.0f;
+                            // ③ 重置玩家状?（★??）
+                            //player::PlayerHealth = 5;        // 或?的最大 HP
+                            //player::PlayerVelocity = Vector3::Zero;
+                            //blackoutT = 0.0f;   // ★ 忘了?行会出 bug
+                            GameState = GAME_TITLE;
+                            LoadLevel(device, context, "e1m1");
+                            ShowMenu = true;
+                            LockMouse = false;
+                            m_mouse->SetMode(Mouse::MODE_ABSOLUTE);
+                        }
+                    }
+                }
 
 
                 ImGui::GetWindowDrawList()->PushClipRectFullScreen();
@@ -210,4 +279,5 @@ namespace gui
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         }
 	}
+
 }

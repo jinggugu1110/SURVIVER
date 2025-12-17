@@ -10,18 +10,41 @@
 
 void AddMonster(std::string name, Vector3 pos)
 {
+	ENTITY ent{};
+	ent.name = name;
+	ent.position = pos;
+	ent.angles = Vector3::Zero;
+
+	ent.size = Vector3(1.0f, 1.f, 1.f);
+	ent.model = "data\\textures\\monsters\\mino.dds";
+	ent.think = monster_zombie_think;
+	ent.next_think = Time;
+	ent.bbox.Center = pos;
+	ent.bbox.Extents = ent.size / 2;
+	ent.sprite = true;
+	ent.health = 2;
+	EntityList.push_back(ent);
+	ent.homePos = pos;
+	//EntityList.push_back({ "zombie", pos, Vector3::Zero, Vector3(1.0f, 1.f, 1.f), "zombie" });
+}
+void AddBoss(std::string name, Vector3 pos)
+{
 	ENTITY ent;
 	ent.name = name;
 	ent.position = pos;
 	ent.angles = Vector3::Zero;
-	ent.size = Vector3(1.0f, 1.f, 1.f);
-	ent.model = "data\\textures\\monsters\\mino.dds";
-	ent.think = monster_zombie_think;
+	ent.size = Vector3(2.f, 2.f, 2.f); // ”ä•’Ê‰ö‘å
+	ent.model = "data\\textures\\monsters\\Boss.dds";
+	ent.health = 20;
+	ent.think = boss_think;   // š ??
+	ent.next_think = 0;
+	ent.sprite = false;
 	ent.bbox.Center = pos;
-	ent.bbox.Extents = ent.size / 2;
-	ent.sprite = true;
+	ent.bbox.Extents = ent.size*0.5f;
+
+	ent.sprite = false; // Boss ¥?‘Ì
+
 	EntityList.push_back(ent);
-	//EntityList.push_back({ "zombie", pos, Vector3::Zero, Vector3(1.0f, 1.f, 1.f), "zombie" });
 }
 
 void SUB_Remove()
@@ -31,13 +54,17 @@ void SUB_Remove()
 
 void RenderEntityList(ID3D11Device* device, ID3D11DeviceContext* context)
 {
+	
+	//context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	//context->OMSetDepthStencilState(m_states->DepthDefault(), 0);
+	//context->RSSetState(m_states->CullCounterClockwise());
 	for (int i = 0; i < EntityList.size(); i++)
 	{
 		if (EntityList[i].model.size())
 		{
 			if (!EntityList[i].mesh)
 			{
-				EntityList[i].mesh = GeometricPrimitive::CreateSphere(context, 0.5f, 32);
+				EntityList[i].mesh = GeometricPrimitive::CreateBox(context, EntityList[i].size);
 			}
 			if (!EntityList[i].texture)
 			{
@@ -64,7 +91,7 @@ void RenderEntityList(ID3D11Device* device, ID3D11DeviceContext* context)
 				m_effect->SetView(m_view);
 				m_effect->SetProjection(m_proj);
 				m_effect->SetTexture(EntityList[i].texture.Get());
-				EntityList[i].mesh->Draw(m_effect.get(), m_inputLayout, true, false);
+				EntityList[i].mesh->Draw(m_effect.get(), m_inputLayout);
 				//lol->Draw(worldMatrix, m_view, m_proj, Colors::White, m_texture.Get());
 			}
 		}

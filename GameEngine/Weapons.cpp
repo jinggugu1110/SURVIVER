@@ -20,6 +20,7 @@ namespace weapon
 		ent.sprite = false;
 		ent.next_think = Time + 35.f;
 		ent.think = SUB_Remove;
+
 		EntityList.push_back(ent);
 	}
 
@@ -66,16 +67,40 @@ namespace weapon
 
 		if (hit != Vector3::Zero)
 		{
-			if (entMinDist < minDist) //we hit entity
+			//if (entMinDist < minDist) //we hit entity
+			if (entMinDist < minDist && EntID != -1)
 			{
-				if (EntID != -1)
-				{
-					EntityList[EntID].think = SUB_Remove;
-					EntityList[EntID].next_think = 0;
-				}
+				//if (EntID != -1)
+				//{
+				//	EntityList[EntID].think = SUB_Remove;
+				//	EntityList[EntID].next_think = 0;
+				//}
+				ENTITY& ent = EntityList[EntID];
+				ent.health -= 1;
 				for (int j = 0; j < random_int(3, 10); j++)
 				{
-					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 15.5f);
+					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 1.5f);
+				}
+				//if (ent.health <= 0)
+				//{
+				//	if (ent.name.find("Boss") != std::string::npos)
+				//	{
+				//		GameState = GAME_CLEAR;   // š Ÿà??—˜
+				//	}
+				//
+				//	ent.think = SUB_Remove;
+				//	ent.next_think = 0;
+				//}
+				if (EntityList[EntID].health <= 0)
+				{
+					if (EntityList[EntID].name == "Boss")
+					{
+						ExplodeAllMonsters();
+						GameState = GAME_CLEAR;
+					}
+
+					EntityList[EntID].think = SUB_Remove;
+					EntityList[EntID].next_think = 0;
 				}
 			}
 			else //we hit wall =(

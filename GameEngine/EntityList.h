@@ -17,8 +17,11 @@ struct ENTITY
 	std::shared_ptr<GeometricPrimitive> mesh;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> texture;
 	Vector3 wanderTarget = Vector3::Zero;
+	Vector3 homePos = Vector3::Zero;// For monsters that wander
 	float next_think;
 	TH_FUNC think = nullptr;
+	bool  isAttacker = false;
+	float lifeEndTime = 0.f;
 };
 
 
@@ -28,4 +31,5 @@ inline int selfID;
 
 void RenderEntityList(ID3D11Device* device, ID3D11DeviceContext* context);
 void AddMonster(std::string name, Vector3 pos);
+void AddBoss(std::string name, Vector3 pos);
 void SUB_Remove();

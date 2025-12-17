@@ -8,7 +8,7 @@ bool LoadOBJ(const std::string& filename, std::vector<std::string>& textureNames
     std::ifstream file(filename);
     if (!file.is_open())
     {
-        std::cout << "Failed to open the OBJ file: " << filename << std::endl;
+        std::cout << "1Failed to open the OBJ file: " << filename << std::endl;
         return false;
     }
 
@@ -122,7 +122,7 @@ void LoadOBJ(const std::string& filename, std::vector<std::string>& textureNames
     std::ifstream file(filename);
     if (!file.is_open())
     {
-        std::cout << "Failed to open the OBJ file: " << filename << std::endl;
+        std::cout << "2Failed to open the OBJ file: " << filename << std::endl;
         return;
     }
 

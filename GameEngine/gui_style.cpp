@@ -48,9 +48,9 @@ void CenterWindow(int w, int h, bool center)
 void SetupFonts()
 {
 	auto io = ImGui::GetIO();
-	font_default = io.Fonts->AddFontFromFileTTF((PATH_FONTS + "ALGER.TTF").c_str(), 24.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
-	font_menu = io.Fonts->AddFontFromFileTTF((PATH_FONTS + "ALGER.TTF").c_str(), 48.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
-	font_hud = io.Fonts->AddFontFromFileTTF((PATH_FONTS + "ALGER.TTF").c_str(), 48.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
+	font_default = io.Fonts->AddFontFromFileTTF((PATH_FONTS + "NotoSansJP-Black.otf").c_str(), 24.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
+	font_menu = io.Fonts->AddFontFromFileTTF((PATH_FONTS + "NotoSansJP-Black.otf").c_str(), 72.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
+	font_hud = io.Fonts->AddFontFromFileTTF((PATH_FONTS + "NotoSansJP-Black.otf").c_str(), 48.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
 }
 
 void Style()

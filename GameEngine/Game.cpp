@@ -11,11 +11,15 @@
 #include "InputManager.h"
 #include "GameUpdate.h"
 #include "Viewmodel.h"
+#include "PlayerController.h"
 //#include "SkyDome.h"
 
 
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;
+
+bool  g_CrtShutdown = false;
+float g_CrtTime = 0.0f;
 
 Game::Game() noexcept(false)
 {
@@ -47,7 +51,7 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
     m_timer.SetFixedTimeStep(true);
-    m_timer.SetTargetElapsedSeconds(1.0 / 120); //120 FPS MAX
+    m_timer.SetTargetElapsedSeconds(1.0 / 60); //120 FPS MAX
 
     m_keyboard = std::make_unique<Keyboard>();
     m_mouse = std::make_unique<Mouse>();
@@ -58,6 +62,14 @@ void Game::Initialize(HWND window, int width, int height)
    //    auto context = m_deviceResources->GetD3DDeviceContext();
    //    g_skyDome = std::make_unique<SkyDome>(device, context);
    //}
+    // ===== Title ?景提前加? =====
+    LoadLevel(
+        m_deviceResources->GetD3DDevice(),
+        m_deviceResources->GetD3DDeviceContext(),
+        "e1m1");
+    GameState = GAME_TITLE;
+    ShowMenu = true;
+    LockMouse = false;
 }
 
 #pragma region Frame Update
@@ -73,8 +85,66 @@ void Game::Tick()
 
 void Game::Update(DX::StepTimer const& timer)
 {   
-    GameUpdate(timer);
+    //GameUpdate(timer);
+     switch (GameState)
+    {
+    case GAME_TITLE:
+        // 只允??入 & UI
+        // ① 世界照常更新（怪物 / boss / 粒子）
+        // ★ 世界照常更新（怪、Boss、粒子都会?）
+        player::PlayerHealth = 9999;
+
+        GameUpdate(timer);
+
+        // 禁止玩家控制
+        //player::InputEnabled = false;
+
+        // UI ?入
+        input::MouseProcess();
+        input::KeyboardProcess();
+
+       
+        break;
+
+    case GAME_PLAY:
+        GameUpdate(timer);   // ★ 原??完整保留
+        break;
+
+    case GAME_CLEAR:
+        GameUpdate(timer);   // ★ ??更新世界
+        input::MouseProcess();
+        input::KeyboardProcess();
+        break;
+    case GAME_FAIL:
+        // 不更新世界，只?理 UI / 重?
+        if (g_CrtShutdown)
+            g_CrtTime += DeltaTime;
+
+        input::MouseProcess();
+        input::KeyboardProcess();
+        break;
+   
+    }
     // TODO: Add your game logic here.
+}
+
+void StartNewGame(ID3D11Device* device, ID3D11DeviceContext* context)
+{
+    // 1. ?制退回 TITLE
+    //GameState = GAME_TITLE;
+
+    // 2. ?底卸?世界
+    UnloadLevel();
+    //EntityList.clear();
+
+    // 3. 明?加???（会?置出生点）
+    LoadLevel(device, context, "e1m1");
+    player::Reset(g_PlayerSpawnPos);
+    // 4. 切?到 PLAY（此? Player 已在出生点）
+    //GameState = GAME_PLAY;
+
+    ShowMenu = false;
+    LockMouse = true;
 }
 #pragma endregion
 
@@ -201,14 +271,14 @@ void Game::CreateDeviceDependentResources()
     m_effect->SetTextureEnabled(true);
 
     m_effect->EnableDefaultLighting();          //ugly specular glowing
-    m_effect->SetSpecularColor(Colors::Black);  //disable specular glow
-    m_effect->SetAmbientLightColor(Colors::Gray);
-    m_effect->SetDiffuseColor(Colors::Gray);
+    m_effect->SetSpecularColor(Colors::Red);  //disable specular glow
+    m_effect->SetAmbientLightColor(Colors::AliceBlue);
+    m_effect->SetDiffuseColor(Colors::Lavender);
 
     m_effect->SetFogEnabled(true);
-    m_effect->SetFogColor(Colors::Gray);
-    m_effect->SetFogStart(10.f);
-    m_effect->SetFogEnd(30.f);
+    m_effect->SetFogColor(Colors::Lavender);
+    m_effect->SetFogStart(30.f);
+    m_effect->SetFogEnd(40.f);
     DX::ThrowIfFailed(CreateInputLayoutFromEffect<VertexType>(device, m_effect.get(), &m_inputLayout));
 
     //Basic drawing fore debug and shit

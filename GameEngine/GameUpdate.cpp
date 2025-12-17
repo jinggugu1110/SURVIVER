@@ -9,9 +9,10 @@ void GameUpdate(DX::StepTimer const& timer)
 {
     DeltaTime = float(timer.GetElapsedSeconds());
     Time = float(timer.GetTotalSeconds());
-
+    
     input::MouseProcess();
     input::KeyboardProcess();
-
+    
     client::ClientThink();
+   
 }
