@@ -12,8 +12,8 @@ extern DirectX::SimpleMath::Vector3 g_BossPos;
 extern int g_AttackerCount;
 extern float g_LastClearTime;
 
-const int   MAX_MONSTERS = 100;
-const float CLEAR_COOLDOWN = 3.5f; // X •b
+const int   MAX_MONSTERS = 150;
+const float CLEAR_COOLDOWN = 3.f; // X •b
 
 void LoadLevel(ID3D11Device* device, ID3D11DeviceContext* context, std::string mapName);
 void SpawnWave();
