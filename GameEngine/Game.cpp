@@ -162,6 +162,7 @@ void Game::Render()
     auto context = m_deviceResources->GetD3DDeviceContext();
 
     Renderer(m_deviceResources->GetD3DDevice(), context, m_deviceResources->GetSwapChain());
+    //bloom blur
     if(ShowMenu) postprocess::Run(m_deviceResources->GetD3DDevice(), context, m_deviceResources->GetSwapChain()); //blur
     gui::RenderGUI(m_deviceResources->GetD3DDevice(), context); //imgui
 
@@ -276,8 +277,8 @@ void Game::CreateDeviceDependentResources()
     m_effect->SetDiffuseColor(Colors::Lavender);
 
     m_effect->SetFogEnabled(true);
-    m_effect->SetFogColor(Colors::Lavender);
-    m_effect->SetFogStart(30.f);
+    m_effect->SetFogColor(Colors::Orange);
+    m_effect->SetFogStart(25.f);
     m_effect->SetFogEnd(40.f);
     DX::ThrowIfFailed(CreateInputLayoutFromEffect<VertexType>(device, m_effect.get(), &m_inputLayout));
 
