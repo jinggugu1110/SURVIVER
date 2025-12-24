@@ -51,7 +51,7 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
     m_timer.SetFixedTimeStep(true);
-    m_timer.SetTargetElapsedSeconds(1.0 / 60); //120 FPS MAX
+    m_timer.SetTargetElapsedSeconds(1.0 / 120); //120 FPS MAX
 
     m_keyboard = std::make_unique<Keyboard>();
     m_mouse = std::make_unique<Mouse>();
