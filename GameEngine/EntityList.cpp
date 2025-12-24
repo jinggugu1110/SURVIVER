@@ -178,7 +178,8 @@ void RenderEntityList(ID3D11Device* device, ID3D11DeviceContext* context)
 					Matrix::CreateTranslation(EntityList[i].position);
 
 				// スプライト（ビルボード）の場合はカメラ向きに回転
-				if (EntityList[i].sprite)
+				if (EntityList[i].sprite &&
+					EntityList[i].think != monster_zombie_think)
 				{
 					XMMATRIX rotationMatrix =
 						LookInDirection(
