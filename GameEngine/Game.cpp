@@ -124,6 +124,7 @@ void Game::Update(DX::StepTimer const& timer)
          break;
      }
     case GAME_PLAY:
+       
         GameUpdate(timer);   // š Œ´??Š®®•Û—¯
         break;
 

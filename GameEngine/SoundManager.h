@@ -15,6 +15,7 @@ public:
     void PlayShot();
     void PlayHit();
     void PlayExplosion();
+    void PlayVoiceOpen();
 
 private:
     std::unique_ptr<DirectX::AudioEngine> m_audio;
@@ -24,5 +25,6 @@ private:
     std::unique_ptr<DirectX::SoundEffect> m_shot;
     std::unique_ptr<DirectX::SoundEffect> m_hit;
     std::unique_ptr<DirectX::SoundEffect> m_explosion;
+	std::unique_ptr<DirectX::SoundEffect> m_voiceOpen;
 };
 

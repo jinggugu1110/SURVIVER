@@ -202,6 +202,10 @@ namespace gui
                 }
                 else if (GameState == GAME_PLAY)
                 {
+                    static bool playedOpen = false;
+                    if (g_sound && !playedOpen)
+                        g_sound->PlayVoiceOpen();
+                    playedOpen = true;
                     DrawHud();
                     //ShowMenu = false;
                 }

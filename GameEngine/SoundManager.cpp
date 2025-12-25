@@ -16,9 +16,12 @@ void SoundManager::Initialize()
         m_audio.get(),
         L"data/sound/click.wav"
     );
-
+   
     m_shot = std::make_unique<SoundEffect>(m_audio.get(), L"data/sound/shot.wav");
     m_hit = std::make_unique<SoundEffect>(m_audio.get(), L"data/sound/hit.wav");
+	//m_explosion = std::make_unique<SoundEffect>(m_audio.get(), L"data/sound/explosion.wav");
+	m_voiceOpen = std::make_unique<SoundEffect>(m_audio.get(),L"data/sound/voice_open.wav"
+	);
     //m_explosion = std::make_unique<SoundEffect>(m_audio.get(), L"data/sound/explosion.wav");
 }
 
@@ -65,4 +68,9 @@ void SoundManager::PlayHit()
 void SoundManager::PlayExplosion()
 {
     if (m_explosion) m_explosion->Play();
+}
+void SoundManager::PlayVoiceOpen()
+{
+    if (m_voiceOpen)
+        m_voiceOpen->Play();
 }
