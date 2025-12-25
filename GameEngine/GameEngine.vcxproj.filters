@@ -125,6 +125,7 @@
     <ClInclude Include="ReadData.h">
       <Filter>dx</Filter>
     </ClInclude>
+    <ClInclude Include="SoundManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="SkyDome.cpp">
       <Filter>render</Filter>
     </ClCompile>
+    <ClCompile Include="SoundManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

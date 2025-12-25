@@ -75,7 +75,9 @@ inline std::unique_ptr<DirectX::Keyboard> m_keyboard;
 inline std::unique_ptr<DirectX::Mouse> m_mouse;
 
 
-
+//SOUND
+class SoundManager;
+extern SoundManager* g_sound;//shot sound
 
 
 //COLLISION

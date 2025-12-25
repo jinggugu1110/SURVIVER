@@ -6,17 +6,19 @@
 #include <Windows.h>
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include <Audio.h>
 
 
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
+class SoundManager;
 class Game final : public DX::IDeviceNotify
 {
 public:
 
     Game() noexcept(false);
-    ~Game() = default;
+    ~Game();
 
     Game(Game&&) = default;
     Game& operator= (Game&&) = default;
@@ -48,7 +50,7 @@ public:
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
-
+	
 private:
 
     void Update(DX::StepTimer const& timer);
@@ -62,7 +64,8 @@ private:
 
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
-
+    // Sound Manager
+    std::unique_ptr<SoundManager> m_sound;
 };
 
 void StartNewGame(ID3D11Device* device, ID3D11DeviceContext* context);

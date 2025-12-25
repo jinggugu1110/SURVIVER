@@ -12,6 +12,7 @@
 #include "GameUpdate.h"
 #include "Viewmodel.h"
 #include "PlayerController.h"
+#include "SoundManager.h"
 //#include "SkyDome.h"
 
 
@@ -20,6 +21,7 @@ using Microsoft::WRL::ComPtr;
 
 bool  g_CrtShutdown = false;
 float g_CrtTime = 0.0f;
+SoundManager* g_sound = nullptr;//global sound manager pointer
 
 Game::Game() noexcept(false)
 {
@@ -43,7 +45,7 @@ void Game::Initialize(HWND window, int width, int height)
 
     m_deviceResources->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
-    
+
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
     /*
@@ -56,6 +58,10 @@ void Game::Initialize(HWND window, int width, int height)
     m_keyboard = std::make_unique<Keyboard>();
     m_mouse = std::make_unique<Mouse>();
     m_mouse->SetWindow(window);
+
+    m_sound = std::make_unique<SoundManager>();
+    m_sound->Initialize();
+	g_sound = m_sound.get();//get global pointer
    //if (!g_skyDome)
    //{
    //    auto device = m_deviceResources->GetD3DDevice();
@@ -85,27 +91,38 @@ void Game::Tick()
 
 void Game::Update(DX::StepTimer const& timer)
 {   
+       
+        // ?“ü TITLE
+        if (GameState == GAME_TITLE)
+        {
+            m_sound->PlayTitleBGM();  // ? Title BGM
+        }
+
+    
     //GameUpdate(timer);
      switch (GameState)
     {
-    case GAME_TITLE:
-        // ‘üˆò??“ü & UI
-        // ‡@ ¢ŠEÆíXVi‰ö•¨ / boss / —±Žqj
-        // š ¢ŠEÆíXVi‰öABossA—±Žq“s‰ï?j
-        player::PlayerHealth = 9999;
+     case GAME_TITLE: {
+         
+        
+        
+         // ‘üˆò??“ü & UI
+         // ‡@ ¢ŠEÆíXVi‰ö•¨ / boss / —±Žqj
+         // š ¢ŠEÆíXVi‰öABossA—±Žq“s‰ï?j
+         player::PlayerHealth = 9999;
 
-        GameUpdate(timer);
+         GameUpdate(timer);
 
-        // ‹ÖŽ~Šß‰ÆT§
-        //player::InputEnabled = false;
+         // ‹ÖŽ~Šß‰ÆT§
+         //player::InputEnabled = false;
 
-        // UI ?“ü
-        input::MouseProcess();
-        input::KeyboardProcess();
+         // UI ?“ü
+         input::MouseProcess();
+         input::KeyboardProcess();
 
-       
-        break;
 
+         break;
+     }
     case GAME_PLAY:
         GameUpdate(timer);   // š Œ´??Š®®•Û—¯
         break;
@@ -125,7 +142,8 @@ void Game::Update(DX::StepTimer const& timer)
         break;
    
     }
-    // TODO: Add your game logic here.
+     m_sound->Update();
+    // TODO: Add game logic here.
 }
 
 void StartNewGame(ID3D11Device* device, ID3D11DeviceContext* context)
@@ -164,7 +182,7 @@ void Game::Render()
     Renderer(m_deviceResources->GetD3DDevice(), context, m_deviceResources->GetSwapChain());
     //bloom blur
     if(ShowMenu) postprocess::Run(m_deviceResources->GetD3DDevice(), context, m_deviceResources->GetSwapChain()); //blur
-    gui::RenderGUI(m_deviceResources->GetD3DDevice(), context); //imgui
+    gui::RenderGUI(m_deviceResources->GetD3DDevice(), context, m_sound.get()); //imgui
 
 
     m_deviceResources->PIXEndEvent();
@@ -316,4 +334,7 @@ void Game::OnDeviceRestored()
 {
     hkOnDeviceRestored(this);
 }
+
+Game::~Game() = default;
+
 #pragma endregion

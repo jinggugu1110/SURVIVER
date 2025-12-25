@@ -7,6 +7,8 @@
 #include "EntityList.h"
 #include "PlayerController.h"
 #include "ParticleSystem.h"
+#include "SoundManager.h"
+
 
 namespace weapon
 {
@@ -33,6 +35,7 @@ namespace weapon
 
 	void FireBullet(Vector3 from, Vector3 dir)
 	{
+		
 		float entMinDist = 9999.f;
 		float minDist = 9999.f;
 		Vector3 hit = Vector3::Zero;
@@ -75,6 +78,8 @@ namespace weapon
 				//	EntityList[EntID].think = SUB_Remove;
 				//	EntityList[EntID].next_think = 0;
 				//}
+				if (g_sound)
+					g_sound->PlayHit();
 				ENTITY& ent = EntityList[EntID];
 				ent.health -= 1;
 				for (int j = 0; j < random_int(3, 10); j++)
@@ -105,12 +110,12 @@ namespace weapon
 			}
 			else //we hit wall =(
 			{
-				Vector3 size = Vector3(0.1f, 0.1f, 0.1f);
+				Vector3 size = Vector3(0.05f, 0.05f, 0.05f);
 				hit = hit + dir * size.x * 0.4f;
 				AddBulletHole(hit, size);
 				for (int j = 0; j < random_int(3, 10); j++)
 				{
-					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 15.5f);
+					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 1.5f);
 				}
 			}
 		}
@@ -125,7 +130,7 @@ namespace weapon
 		}
 		if (AttackHeld) return;
 		AttackHeld = true;
-
+		
 		Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.f);
 		DirectX::XMVECTOR rotationQuaternion = DirectX::XMLoadFloat4(&q);
 		DirectX::XMVECTOR forward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
@@ -139,6 +144,8 @@ namespace weapon
 			cameraForward = cameraForward + Vector3(random_float(-0.05f, 0.05f), random_float(-0.05f, 0.05f), random_float(-0.05f, 0.05f));
 			cameraForward.Normalize();
 			FireBullet(m_cameraPos, cameraForward);
+			if (g_sound)
+				g_sound->PlayShot();
 		}
 
 		AddRecoil(-cameraForward * 0.00001f, random_float(0.5f, 2.f), random_float(-1.f, 1.f));

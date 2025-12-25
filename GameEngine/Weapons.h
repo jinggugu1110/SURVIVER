@@ -9,4 +9,5 @@ namespace weapon
 	inline float RecoilYaw;
 	void Attack();
 	void WeaponFrame();
+	
 }

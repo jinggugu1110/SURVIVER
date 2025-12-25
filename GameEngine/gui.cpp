@@ -14,6 +14,7 @@
 #include "gui_hud.h"
 #include "LevelManager.h"
 #include <algorithm>
+#include "SoundManager.h"
 
 namespace gui
 {
@@ -35,7 +36,7 @@ namespace gui
 
 
 
-    void DrawMenu(ID3D11Device* device, ID3D11DeviceContext* context)
+    void DrawMenu(ID3D11Device* device, ID3D11DeviceContext* context, SoundManager* sound)
     {
         float centerX = (ImGui::GetWindowSize().x - ButtonWidth) * 0.5f;
         ImGui::SetCursorPosX(centerX);
@@ -53,20 +54,32 @@ namespace gui
             float posY = ImGui::GetCursorPosY();
             ImGui::SetCursorPosY(posY - ButtonHeight * 2 - ButtonHeight * 0.25);
             ImGui::SetCursorPosX(centerX);
-            if (ImGui::Button("New Game", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_singleplayer;
+            if (ImGui::Button("New Game", ImVec2(ButtonWidth, ButtonHeight)))
+            {
+                if (sound) sound->PlayClick();
+                CurrentPage = page_singleplayer;
+            }
             //if (ImGui::Button("MULTIPLAYER", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_multiplayer;
             //if (ImGui::Button("SETTINGS", ImVec2(ButtonWidth, ButtonHeight))) { ShowSettings = !ShowSettings; }
             //if (ImGui::Button("CREDITS", ImVec2(ButtonWidth, ButtonHeight))) ShowCredits = !ShowCredits;
+            
         }
         else if (CurrentPage == page_singleplayer)
         {
-            if (ImGui::Button("Back", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_main;
+            if (ImGui::Button("Back", ImVec2(ButtonWidth, ButtonHeight)))
+            {
+                if (sound) sound->PlayClick();
+                CurrentPage = page_main;
+            }
             float posY = ImGui::GetCursorPosY();
             ImGui::SetCursorPosX(centerX);
             ImGui::SetCursorPosY(posY - ButtonHeight * 2 - ButtonHeight * 0.25);
             if (ImGui::Button("Start", ImVec2(ButtonWidth, ButtonHeight))) 
             { 
                 UnloadLevel();
+                
+                if (sound)
+                    sound->PlayClick();
                 CurrentPage = page_main; 
                 LoadLevel(device, context, "e1m1");
                 StartNewGame(device, context);
@@ -130,7 +143,7 @@ namespace gui
 
     bool init = false;
     bool open = true;
-	void RenderGUI(ID3D11Device* device, ID3D11DeviceContext* context)
+	void RenderGUI(ID3D11Device* device, ID3D11DeviceContext* context, SoundManager* sound)
 	{
         if (!init)
         {
@@ -185,7 +198,7 @@ namespace gui
                 
                 if (GameState == GAME_TITLE)
                 {
-                    DrawMenu(device, context);
+                    DrawMenu(device, context,sound);
                 }
                 else if (GameState == GAME_PLAY)
                 {
@@ -196,7 +209,9 @@ namespace gui
                 {
                     ImGui::Text("YOU WIN");
                     if (ImGui::Button("RESTART"))
+                        
                     {
+                        if (sound) sound->PlayClick();
                         UnloadLevel();
                      
                         LoadLevel(device, context, "e1m1");
@@ -211,6 +226,8 @@ namespace gui
                 }
                 else if (GameState == GAME_FAIL)
                 {
+                    if (sound)
+                        sound->StopBGM();
                     ImGuiIO& io = ImGui::GetIO();
                     auto* drawList = ImGui::GetBackgroundDrawList();
 

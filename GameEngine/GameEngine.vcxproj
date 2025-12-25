@@ -220,6 +220,7 @@
     <ClInclude Include="render.h" />
     <ClInclude Include="skybox.h" />
     <ClInclude Include="SkyDome.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="Viewmodel.h" />
     <ClInclude Include="Weapons.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="render.cpp" />
     <ClCompile Include="skybox.cpp" />
     <ClCompile Include="SkyDome.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Viewmodel.cpp" />
     <ClCompile Include="Weapons.cpp" />
     <ClCompile Include="WndProc.cpp" />
