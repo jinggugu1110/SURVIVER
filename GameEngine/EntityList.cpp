@@ -77,7 +77,7 @@ void AddBoss(std::string name, Vector3 pos)
 	ent.angles = Vector3::Zero;
 
 	// Boss は通常モンスターより大きい
-	ent.size = Vector3(2.f, 2.f, 2.f);
+	ent.size = Vector3(1.f, 1.f, 1.f);
 
 	// Boss 用テクスチャ
 	ent.model = "data\\textures\\monsters\\Boss.dds";
