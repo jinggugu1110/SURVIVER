@@ -13,7 +13,7 @@
 // -----------------------------------------------------
 
 // 重力加速度（Y 軸方向に影響）
-float GRAVITY = 0.900f;
+float GRAVITY = 1.900f;
 
 // 摩擦係数（現在は未使用だが、地上移動用に残してある）
 float FRICTION = 25.0f;
@@ -112,14 +112,14 @@ void monster_zombie_think()
                 lateral.Normalize();
 
             // ランダムな散らばり（弾のばらつき）
-            float spread = ((rand() % 100) / 100.0f - 0.5f) * 5.f;
+            float spread = ((rand() % 100) / 100.0f - 0.5f) * 15.f;
 
             // 最終的な初速を設定
             self->velocity = baseV + lateral * spread;
 
             // ★ angles.z を「寿命タイマー」として流用
             //   新しい変数を増やさずに、消滅時間を管理している
-            self->angles.z = Time + 2.0f;
+            self->angles.z = Time + 3.0f;
         }
         else
         {

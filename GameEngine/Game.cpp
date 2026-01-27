@@ -92,10 +92,10 @@ void Game::Tick()
 void Game::Update(DX::StepTimer const& timer)
 {   
        
-        // ?“ü TITLE
+        // TITLE
         if (GameState == GAME_TITLE)
         {
-            m_sound->PlayTitleBGM();  // ? Title BGM
+            m_sound->PlayTitleBGM();  // Title BGM
         }
 
     
@@ -291,12 +291,12 @@ void Game::CreateDeviceDependentResources()
     m_effect->SetTextureEnabled(true);
 
     m_effect->EnableDefaultLighting();          //ugly specular glowing
-    m_effect->SetSpecularColor(Colors::Red);  //disable specular glow
+    m_effect->SetSpecularColor(Colors::DarkKhaki);  //disable specular glow
     m_effect->SetAmbientLightColor(Colors::AliceBlue);
     m_effect->SetDiffuseColor(Colors::Lavender);
 
     m_effect->SetFogEnabled(true);
-    m_effect->SetFogColor(Colors::Orange);
+    m_effect->SetFogColor(Colors::Black);
     m_effect->SetFogStart(25.f);
     m_effect->SetFogEnd(40.f);
     DX::ThrowIfFailed(CreateInputLayoutFromEffect<VertexType>(device, m_effect.get(), &m_inputLayout));

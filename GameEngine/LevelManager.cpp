@@ -272,7 +272,7 @@ void LoadLevel(ID3D11Device* device, ID3D11DeviceContext* context, std::string m
 void SpawnWave()
 {
     const int ATTACKER_COUNT = 10;
-    const int TOTAL = 120;
+    const int TOTAL = 200;
     const float RADIUS = 4.0f;
 
     for (int i = 0; i < TOTAL; i++)
