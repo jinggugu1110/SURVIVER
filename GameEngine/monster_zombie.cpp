@@ -112,7 +112,7 @@ void monster_zombie_think()
                 lateral.Normalize();
 
             // ランダムな散らばり（弾のばらつき）
-            float spread = ((rand() % 100) / 100.0f - 0.5f) * 15.f;
+            float spread = ((rand() % 100) / 100.0f - 0.5f) * 10.f;
 
             // 最終的な初速を設定
             self->velocity = baseV + lateral * spread;
@@ -184,7 +184,7 @@ void monster_zombie_think()
             }
 
             // 命中エフェクト
-            particle_system::EmitExplosion(self->position, 20, 3.0f, 0.8f);
+            particle_system::EmitExplosion(self->position, 20, 0.5f, 0.2f);
 
             // 攻撃体を削除
             self->think = SUB_Remove;
@@ -207,7 +207,7 @@ void monster_zombie_think()
     // =====================================================
     if (!self->isAttacker || !self->velocity.LengthSquared() > 0.0001f)
     {
-        const float BASE_RADIUS = 5.0f;
+        const float BASE_RADIUS = 4.0f;
         const float ORBIT_SPEED = 0.8f;
 
         // 周回角度（theta）の更新
@@ -233,8 +233,8 @@ void monster_zombie_think()
         dir.Normalize();
 
         // 半径に呼吸のような揺らぎを加える
-        float pulse = 0.5f * sinf(Time * 0.8f + theta);
-        float radius = BASE_RADIUS + pulse * 5.0;
+        float pulse = 0.4f * sinf(Time * 0.8f + theta);
+        float radius = BASE_RADIUS + pulse * 4.0;
 
         // ★ Boss を中心とした最終位置
         self->position = g_BossPos + dir * radius;

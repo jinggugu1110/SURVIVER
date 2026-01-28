@@ -291,7 +291,7 @@ void Game::CreateDeviceDependentResources()
     m_effect->SetTextureEnabled(true);
 
     m_effect->EnableDefaultLighting();          //ugly specular glowing
-    m_effect->SetSpecularColor(Colors::DarkKhaki);  //disable specular glow
+    m_effect->SetSpecularColor(Colors::DarkGray);  //disable specular glow
     m_effect->SetAmbientLightColor(Colors::AliceBlue);
     m_effect->SetDiffuseColor(Colors::Lavender);
 

@@ -28,7 +28,7 @@ void AddMonster(std::string name, Vector3 pos)
 	ent.angles = Vector3::Zero;
 
 	// 当たり判定サイズ（立方体）
-	ent.size = Vector3(0.6f, 0.6f, 0.6f);
+	ent.size = Vector3(0.5f, 0.5f, 0.5f);
 
 	// 使用するスプライト（テクスチャ）
 	ent.model = "data\\textures\\monsters\\mino.dds";
@@ -76,13 +76,13 @@ void AddBoss(std::string name, Vector3 pos)
 	ent.angles = Vector3::Zero;
 
 	// Boss は通常モンスターより大きい
-	ent.size = Vector3(0.8f, 0.8f, 0.8f);
+	ent.size = Vector3(0.9f, 0.9f, 0.9f);
 
 	// Boss 用テクスチャ
 	ent.model = "data\\textures\\monsters\\Boss.dds";
 
 	// Boss の体力
-	ent.health = 20;
+	ent.health = 10;
 
 	// Boss 専用の思考関数
 	ent.think = boss_think;

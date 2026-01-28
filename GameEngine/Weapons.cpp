@@ -84,7 +84,7 @@ namespace weapon
 				ent.health -= 1;
 				for (int j = 0; j < random_int(3, 10); j++)
 				{
-					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 1.5f);
+					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 0.5f);
 				}
 				//if (ent.health <= 0)
 				//{
@@ -115,7 +115,7 @@ namespace weapon
 				AddBulletHole(hit, size);
 				for (int j = 0; j < random_int(3, 10); j++)
 				{
-					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 1.5f);
+					particle_system::Emit(hit, Vector3(random_float(-1.f, 1.f), random_float(-1.f, 1.f), random_float(-1.f, 1.f)), 0.2f);
 				}
 			}
 		}

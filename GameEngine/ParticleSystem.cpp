@@ -9,7 +9,7 @@ namespace particle_system
     {
         Particle particle;
         particle.position = emitterPosition;
-        particle.size = Vector3(random_float(0.01f, 0.05f), random_float(0.01f, 0.05f), random_float(0.01f, 0.05f));
+        particle.size = Vector3(random_float(0.03f, 0.05f), random_float(0.03f, 0.05f), random_float(0.03f, 0.05f));
         //particle.size = Vector3(0.3f, 0.3f, 0.3f);
         particle.velocity = direction; // Set the initial velocity
         particle.lifetime = Time + lifetime; // Set the lifetime of the particle (e.g., 1 second)

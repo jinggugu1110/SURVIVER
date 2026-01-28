@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "gui.h"
 #include "main.h"
 #include "Game.h"
@@ -34,6 +34,38 @@ namespace gui
     bool ShowCredits = false;
     bool ShowFirstTimeMenu = true;
 
+    static void DrawCenterTitle(const char* text, float yRatio, ImU32 col, ImFont* font)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        auto* dl = ImGui::GetForegroundDrawList();
+
+        ImGui::PushFont(font);
+        ImVec2 size = ImGui::CalcTextSize(text);
+        ImGui::PopFont();
+
+        ImVec2 pos((io.DisplaySize.x - size.x) * 0.5f, io.DisplaySize.y * yRatio);
+
+        // ï¼ˆå¯é€‰ï¼‰æè¾¹/é˜´å½±ï¼šæ›´æ¸…æ™°
+        dl->AddText(ImVec2(pos.x + 2, pos.y + 2), IM_COL32(0, 0, 0, 180), text);
+        ImGui::PushFont(font);
+        dl->AddText(pos, col, text);
+        ImGui::PopFont();
+    }
+
+    static ImU32 RainbowColor(float t, float alpha = 0.35f)
+    {
+        // t: time (seconds)
+        float r = 0.5f + 0.5f * sinf(t * 2.0f);
+        float g = 0.5f + 0.5f * sinf(t * 2.0f + 2.094f); // +120Â°
+        float b = 0.5f + 0.5f * sinf(t * 2.0f + 4.188f); // +240Â°
+
+        return IM_COL32(
+            (int)(r * 255),
+            (int)(g * 255),
+            (int)(b * 255),
+            (int)(alpha * 255)
+        );
+    }
 
 
     void DrawMenu(ID3D11Device* device, ID3D11DeviceContext* context, SoundManager* sound)
@@ -84,6 +116,7 @@ namespace gui
                 LoadLevel(device, context, "e1m1");
                 StartNewGame(device, context);
                 GameState = GAME_PLAY;
+                TriggerMissionStartUI();
                 ShowMenu = false; 
                 LockMouse = true; 
                 m_mouse->SetMode(Mouse::MODE_RELATIVE);
@@ -116,7 +149,7 @@ namespace gui
         ImGui::Text("%s", title);
 
         ImGui::PopFont();
-        // ==== ???¦?‘© ====
+        // ==== ???ç¤º?æŸ ====
         //else if (CurrentPage == page_multiplayer)
         //{
         //    if (ImGui::Button("BACK", ImVec2(ButtonWidth, ButtonHeight))) CurrentPage = page_main;
@@ -211,21 +244,35 @@ namespace gui
                 }
                 else if (GameState == GAME_CLEAR)
                 {
-                    ImGui::Text("YOU WIN");
-                    if (ImGui::Button("RESTART"))
-                        
+                    
+                    ImGuiIO& io = ImGui::GetIO();
+                    auto* bg = ImGui::GetBackgroundDrawList();
+
+                    static float rainbowTime = 0.0f;
+                    rainbowTime += DeltaTime;
+
+                    // å…¨å±å½©è™¹èƒŒæ™¯ï¼ˆåŠé€æ˜ï¼‰
+                    bg->AddRectFilled(
+                        ImVec2(0, 0),
+                        io.DisplaySize,
+                        RainbowColor(rainbowTime, 0.9f)
+                    );
+                    DrawCenterTitle("CONGRATULATIONS", 0.35f, IM_COL32(255, 255, 255, 230), font_menu);
+
+                    // æŒ‰é’®å±…ä¸­æ”¾åœ¨æ ‡é¢˜ä¸‹æ–¹
+                    
+                    ImGui::SetCursorPosY(io.DisplaySize.y * 0.55f);
+                    ImGui::SetCursorPosX((io.DisplaySize.x - ButtonWidth) * 0.5f);
+
+                    if (ImGui::Button("RESTART", ImVec2(ButtonWidth, ButtonHeight)))
                     {
                         if (sound) sound->PlayClick();
                         UnloadLevel();
-                     
                         LoadLevel(device, context, "e1m1");
-                        
-                        //EntityList.clear();
                         GameState = GAME_TITLE;
                         ShowMenu = true;
                         LockMouse = false;
                         m_mouse->SetMode(Mouse::MODE_ABSOLUTE);
-                        
                     }
                 }
                 else if (GameState == GAME_FAIL)
@@ -238,47 +285,72 @@ namespace gui
                     static float blackoutT = 0.0f;
                     blackoutT += DeltaTime;
 
-                    // 0 ¨ 1
-                    float t = min(blackoutT / 1.0f, 1.0f);
+                    // 0 â†’ 1
+                    float t = min(blackoutT / 0.4f, 1.0f);
 
-                    // ’†‰›—º“_”¼ŒaiCRT ’f?Š´j
+                    // ä¸­å¤®äº®ç‚¹åŠå¾„ï¼ˆCRT æ–­?æ„Ÿï¼‰
                     float radius = (1.0f - t) * std:: max(0.05f, io.DisplaySize.y*0.01f);
+                    float radius2 = (1.0f - t) * std::max(0.05f, io.DisplaySize.y * 0.05f);
+                    float lineLength = (1.0f - t) * std::max(10.0f, io.DisplaySize.x);
 
                     ImVec2 center(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 
-                    // ‘SüK
+                    // å…¨é»‘
                     drawList->AddRectFilled(
                         ImVec2(0, 0),
                         io.DisplaySize,
                         IM_COL32(0, 0, 0, 255)
                     );
 
-                    // ’†‰›—ºšŸiÅ@ˆê“_Œõj
-                    drawList->AddCircleFilled(
-                        center,
-                        radius,
-                        IM_COL32(255, 255, 255, 255),
-                        64
-                    );
+                    // ä¸­å¤®äº®åœˆï¼ˆæœ€åä¸€ç‚¹å…‰ï¼‰
+                    
+                        // åŸç‚¹ç¼©å°
+                        drawList->AddCircleFilled(
+                            center,
+                            radius,
+                            IM_COL32(255, 255, 255, 255),
+                            64
+                        );
+                        drawList->AddCircleFilled(
+                            center,
+                            radius2,
+                            IM_COL32(255, 255, 255, 160),
+                            64
+                        );
+                    
+                        // å˜æˆä¸€æ¡ç»†æ¨ªçº¿
+                        float lineH = 2.0f;                 // çº¿çš„åšåº¦
+                        //float lineW = io.DisplaySize.x; // çº¿çš„é•¿åº¦ï¼ˆå¯è°ƒï¼‰
+
+                        drawList->AddRectFilled(
+                            ImVec2(center.x - lineLength * 0.5f, center.y - lineH * 0.5f),
+                            ImVec2(center.x + lineLength * 0.5f, center.y + lineH * 0.5f),
+                            IM_COL32(255, 255, 255, 255)
+                        );
+                    
 
                     ImGui::SetCursorPosY(io.DisplaySize.y * 0.6f);
                     ImGui::SetCursorPosX((io.DisplaySize.x - ButtonWidth) * 0.5f);
 
                     if (t >= 1.0f)
                     {
-                        ImGui::Text("GAME OVER");
-                        if (ImGui::Button("RESTART", ImVec2(ButtonWidth, ButtonHeight)))
+                        DrawCenterTitle("Connection Lost...", 0.35f, IM_COL32(255, 255, 255, 230), font_menu);
+
+                        ImGui::SetCursorPosY(io.DisplaySize.y * 0.55f);
+                        ImGui::SetCursorPosX((io.DisplaySize.x - ButtonWidth) * 0.5f);
+
+                        if (ImGui::Button("RETRY", ImVec2(ButtonWidth, ButtonHeight)))
                         {
                             
                             UnloadLevel(); 
                            
-                            // ‡A d’u CRT ’f?ó?iš??j
+                            // â‘¡ é‡ç½® CRT æ–­?çŠ¶?ï¼ˆâ˜…??ï¼‰
                             g_CrtShutdown = false;
                             g_CrtTime = 0.0f;
-                            // ‡B d’uŠß‰Æó?iš??j
-                            //player::PlayerHealth = 5;        // ˆ½?“IÅ‘å HP
+                            // â‘¢ é‡ç½®ç©å®¶çŠ¶?ï¼ˆâ˜…??ï¼‰
+                            //player::PlayerHealth = 5;        // æˆ–?çš„æœ€å¤§ HP
                             //player::PlayerVelocity = Vector3::Zero;
-                            //blackoutT = 0.0f;   // š –Y—¹?s‰ïo bug
+                            //blackoutT = 0.0f;   // â˜… å¿˜äº†?è¡Œä¼šå‡º bug
                             GameState = GAME_TITLE;
                             LoadLevel(device, context, "e1m1");
                             ShowMenu = true;
