@@ -124,17 +124,32 @@ void Game::Update(DX::StepTimer const& timer)
          break;
      }
     case GAME_PLAY:
-       
+        m_mouse->SetVisible(false);
         GameUpdate(timer);   // ★ 原??完整保留
         break;
 
     case GAME_CLEAR:
+        LockMouse = false;
+        m_mouse->SetMode(Mouse::MODE_ABSOLUTE);
+        //m_mouse->SetVisible(true);
+
+        ReleaseCapture();
+        ClipCursor(nullptr);
+        //ShowCursor(TRUE);
+
         GameUpdate(timer);   // ★ ??更新世界
         input::MouseProcess();
         input::KeyboardProcess();
         break;
     case GAME_FAIL:
         // 不更新世界，只?理 UI / 重?
+        LockMouse = false;
+        m_mouse->SetMode(Mouse::MODE_ABSOLUTE);
+
+        ReleaseCapture();
+        ClipCursor(nullptr);
+        //ShowCursor(TRUE);
+
         if (g_CrtShutdown)
             g_CrtTime += DeltaTime;
 

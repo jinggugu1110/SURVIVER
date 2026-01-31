@@ -10,10 +10,12 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 // Windows procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (ShowMenu)
-    {
-        ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
-    }
+   //if (ShowMenu)
+   //{
+   //    ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+   //}
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
 
     static bool s_in_sizemove = false;
     static bool s_in_suspend = false;
